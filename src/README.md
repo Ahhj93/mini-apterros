@@ -1,2 +1,1 @@
-Dossier source du projet
-
+Ce dossier contient les fichiers sources du projet Mini-Apterros.
