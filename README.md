@@ -3,8 +3,7 @@
 > Fusée expérimentale du projet Perseus du CNES
 
 ## Contributeurs
-* Bryan-Sowanna Ing - [@Ahhj93](https://github.com/Ahhj93)
-* Sara Bailleul - [@sblikeice](https://github.com/sblikeice)
-* Margaux Laplante - [@Margaux-Lapl](https://github.com/Margaux-Lapl)
-* Julien Thomas - [@julien0305](https://github.com/julien0305)
-* João Pedro Da Silva Cerquiera - [@JoaoCerq](https://github.com/JoaoCerq)
+| ![](https://images.weserv.nl/?url=github.com/Ahhj93.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/sblikeice.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/Margaux-Lapl.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/julien0305.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/JoaoCerq.png&mask=circle)
+| :---: | :---: | :---: | :---: | :---: |
+| [@Ahhj93](https://github.com/Ahhj93) | [@sblikeice](https://github.com/sblikeice) | [@Margaux-Lapl](https://github.com/Margaux-Lapl) | [@julien0305](https://github.com/julien0305) | [@JoaoCerq](https://github.com/JoaoCerq) |
+| Bryan-Sowanna ING | Sara BAILLEUL | Margaux LAPLANTE | Julien THOMAS | João Pedro DA SILVA CERQUIERA |
