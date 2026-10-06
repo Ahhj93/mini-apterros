@@ -1,0 +1,5 @@
+#define PWM_DUTY_CYCLE "/sys/class/pwm/pwmchip0/pwm0/duty_cycle"
+#define PWM_PERIOD "/sys/class/pwm/pwmchip0/pwm0/period"
+#define PWM_ENABLE "/sys/class/pwm/pwmchip0/pwm0/enable"
+#define PWM_CHIP_EXPORT "/sys/class/pwm/pwmchip0/export"
+#define PWM_CHIP_UNEXPORT "/sys/class/pwm/pwmchip0/unexport"
