@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commande PWM</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: #172033;
+      background: #eef2f7;
+    }
+
+    body {
+      display: grid;
+      min-height: 100vh;
+      margin: 0;
+      place-items: center;
+    }
+
+    main {
+      width: min(100% - 2rem, 30rem);
+      padding: 2rem;
+      border: 1px solid #d9e0ea;
+      border-radius: 0.75rem;
+      background: #fff;
+      box-shadow: 0 0.75rem 2rem #17203318;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+
+    p {
+      color: #536174;
+    }
+
+    label {
+      display: block;
+      margin-top: 1.25rem;
+      font-weight: 600;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      margin-top: 0.4rem;
+      padding: 0.7rem;
+      border: 1px solid #b9c3d2;
+      border-radius: 0.4rem;
+      font: inherit;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      border: 0;
+      border-radius: 0.4rem;
+      color: #fff;
+      background: #1769aa;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    #status {
+      min-height: 1.5rem;
+      margin-bottom: 0;
+    }
+
+    .success {
+      color: #16713b;
+    }
+
+    .error {
+      color: #b42318;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Commande PWM</h1>
+    <p>Configurez les valeurs en nanosecondes.</p>
+
+    <form id="pwm-form">
+      <label for="duty_cycle">Duty cycle (ns)</label>
+      <input id="duty_cycle" name="duty_cycle" type="number" min="0" step="1"
+             value="1000000" required>
+
+      <label for="period">Période (ns)</label>
+      <input id="period" name="period" type="number" min="1" step="1"
+             value="20000000" required>
+
+      <button type="submit">Appliquer</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.querySelector("#pwm-form");
+    const dutyCycle = document.querySelector("#duty_cycle");
+    const period = document.querySelector("#period");
+    const button = form.querySelector("button");
+    const status = document.querySelector("#status");
+    const apiBase = window.location.protocol === "file:"
+      ? "http://localhost:8080"
+      : `${window.location.protocol}//${window.location.hostname}:8080`;
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      status.textContent = "";
+      status.className = "";
+
+      const duty = Number(dutyCycle.value);
+      const periodValue = Number(period.value);
+      if (!Number.isSafeInteger(duty) || !Number.isSafeInteger(periodValue) ||
+          duty < 0 || periodValue < 1 || duty > periodValue) {
+        status.textContent = "La période doit être positive et le duty cycle ne doit pas la dépasser.";
+        status.className = "error";
+        return;
+      }
+
+      button.disabled = true;
+      try {
+        const response = await fetch(`${apiBase}/api/pwm`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            duty_cycle: duty,
+            period: periodValue
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        status.textContent = "Les valeurs ont été appliquées.";
+        status.className = "success";
+      } catch (error) {
+        status.textContent = "Impossible de joindre le contrôleur PWM.";
+        status.className = "error";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 FLAGS = -Wall -Wextra -pedantic -g
 
-.PHONY: all main clean
+.PHONY: all main pinmux clean
 
 all: main
 
