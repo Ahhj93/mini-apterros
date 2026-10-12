@@ -33,8 +33,8 @@ static int bad_request(void)
     printf("Status: 400 Bad Request\r\n");
     printf("Content-Type: text/plain; charset=utf-8\r\n");
     printf("Cache-Control: no-store\r\n\r\n");
-    printf("Parametres invalides.\n");
-    printf("Exemple : ?period=5&duty_cycle=50\n");
+    printf("Invalid Parameters.\n");
+    printf("Example : ?period=5&duty_cycle=50\n");
     return 0;
 }
 
@@ -100,7 +100,7 @@ int main(void)
 
     printf("Content-Type: text/plain; charset=utf-8\r\n");
     printf("Cache-Control: no-store\r\n\r\n");
-    printf("Parametres recus :\n");
+    printf("Received parameters :\n");
     printf("period = %d\n", period);
     printf("duty_cycle = %d %%\n", duty_cycle);
 
