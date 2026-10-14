@@ -3,7 +3,7 @@ name: Synchronize Jetson Nano branch
 on:
   push:
     branches-ignore:
-      - jetson_nano
+      - jetson-nano
 
 permissions:
   contents: write
@@ -17,18 +17,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Synchronize src/jetson_nano to jetson_nano
+      - name: Synchronize src/jetson-nano to jetson-nano
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ ! -d src/jetson_nano ]]; then
-            echo "The src/jetson_nano directory does not exist."
+          if [[ ! -d src/jetson-nano ]]; then
+            echo "The src/jetson-nano directory does not exist."
             exit 1
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git subtree split --prefix=src/jetson_nano --branch=jetson-nano-sync
-          git push --force origin jetson-nano-sync:jetson_nano
+          git subtree split --prefix=src/jetson-nano --branch=jetson-nano-sync
+          git push --force origin jetson-nano-sync:jetson-nano
           git branch -D jetson-nano-sync
