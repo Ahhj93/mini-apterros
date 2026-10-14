@@ -1,0 +1,20 @@
+<form action="/cgi-bin/control.cgi" method="get">
+  <label>
+    Période :
+    <input type="number" name="period" min="1" value="5" required>
+  </label>
+
+  <label>
+    Duty cycle (%) :
+    <input
+      type="number"
+      name="duty_cycle"
+      min="0"
+      max="100"
+      value="50"
+      required
+    >
+  </label>
+
+  <button type="submit">Envoyer</button>
+</form>
