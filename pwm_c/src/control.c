@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include "../inc/pwm.h"
 
 static int parse_integer(const char *text, int *result)
 {
@@ -92,11 +93,14 @@ int main(void)
         period <= 0 || duty_cycle > 100)
         return bad_request();
 
-    /*
-     * Ton traitement C ici, par exemple :
-     *
-     * appliquer_configuration(period, duty_cycle);
-     */
+    /* period is given in ms, apply_pwm expects ns */
+    if (apply_pwm(period * 1000000L, duty_cycle) != 0) {
+        printf("Status: 500 Internal Server Error\r\n");
+        printf("Content-Type: text/plain; charset=utf-8\r\n");
+        printf("Cache-Control: no-store\r\n\r\n");
+        printf("Failed to apply the PWM configuration.\n");
+        return 0;
+    }
 
     printf("Content-Type: text/plain; charset=utf-8\r\n");
     printf("Cache-Control: no-store\r\n\r\n");
