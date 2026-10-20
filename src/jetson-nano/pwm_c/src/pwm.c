@@ -91,3 +91,17 @@ int apply_pwm(long period_ns, double duty_percent) {
     /* Start the signal. */
     return write_value(PWM_ENABLE, 1);
 }
+
+/*
+ * Stops the PWM signal and releases the pwm0 channel.
+ * Returns 0 on success, -1 on error.
+ */
+int stop_pwm(void) {
+    /* Nothing to stop if pwm0 is not exported. */
+    if (access(PWM_ENABLE, F_OK) != 0)
+        return 0;
+
+    if (write_value(PWM_ENABLE, 0) != 0)
+        return -1;
+    return write_value(PWM_CHIP_UNEXPORT, 0);
+}

@@ -11,4 +11,8 @@
  * Returns 0 on success, -1 on error. */
 int apply_pwm(long period_ns, double duty_percent);
 
+/* Stop the PWM signal and unexport pwm0.
+ * Returns 0 on success, -1 on error. */
+int stop_pwm(void);
+
 #endif

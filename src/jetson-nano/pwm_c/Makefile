@@ -1,6 +1,6 @@
 FLAGS = -Wall -Wextra -pedantic -g
 
-.PHONY: all main pinmux pwm control control_server clean
+.PHONY: all main main_pwm pinmux pwm control control_server clean
 
 all: main
 
@@ -22,5 +22,8 @@ control_server: control
 main: src/main.c
 	gcc $(FLAGS) src/main.c -o main
 
+main_pwm: src/main_pwm.c pwm
+	gcc $(FLAGS) src/main_pwm.c pwm.o -o main_pwm
+
 clean: 
-	rm -f *.o main ../website/cgi-bin/control.cgi
+	rm -f *.o main main_pwm ../website/cgi-bin/control.cgi
