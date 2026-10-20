@@ -18,7 +18,6 @@ control: src/control.c pwm
 # Lost after a reboot or an unexport: run it again in that case.
 pwm_permissions:
 	[ -d $(PWMCHIP)/pwm0 ] || sudo sh -c 'echo 0 > $(PWMCHIP)/export'
-	sleep 1
 	sudo chgrp www-data $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
 	sudo chmod g+w $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
 
