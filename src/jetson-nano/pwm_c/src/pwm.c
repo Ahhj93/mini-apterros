@@ -103,5 +103,5 @@ int stop_pwm(void) {
 
     if (write_value(PWM_ENABLE, 0) != 0)
         return -1;
-    return write_value(PWM_CHIP_UNEXPORT, 0);
+    // return write_value(PWM_CHIP_UNEXPORT, 0);
 }

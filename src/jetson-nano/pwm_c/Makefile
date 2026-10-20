@@ -1,6 +1,7 @@
 FLAGS = -Wall -Wextra -pedantic -g
+PWMCHIP = /sys/class/pwm/pwmchip0
 
-.PHONY: all main main_pwm pinmux pwm control control_server clean
+.PHONY: all main main_pwm pinmux pwm control control_server pwm_permissions clean
 
 all: main
 
@@ -13,7 +14,15 @@ pwm: src/pwm.c inc/pwm.h
 control: src/control.c pwm
 	gcc $(FLAGS) src/control.c pwm.o -o ../website/cgi-bin/control.cgi
 
-control_server: control
+# Export pwm0 as root and let Apache (www-data) write to it.
+# Lost after a reboot or an unexport: run it again in that case.
+pwm_permissions:
+	[ -d $(PWMCHIP)/pwm0 ] || sudo sh -c 'echo 0 > $(PWMCHIP)/export'
+	sleep 1
+	sudo chgrp www-data $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
+	sudo chmod g+w $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
+
+control_server: control pwm_permissions
 	sudo cp ../website/cgi-bin/control.cgi /usr/lib/cgi-bin/control.cgi
 	sudo chmod 755 /usr/lib/cgi-bin/control.cgi
 	sudo cp ../website/html/index.html /var/www/html/index.html
