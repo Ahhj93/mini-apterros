@@ -1,20 +1,160 @@
-<form action="/cgi-bin/control.cgi" method="get">
-  <label>
-    Period (ms):
-    <input type="number" name="period" min="1" value="5" required>
-  </label>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini-Apterros</title>
+  <style>
+    body { font-family: sans-serif; max-width: 640px; margin: 0 auto; padding: 16px; }
+    section { margin-bottom: 24px; }
+    .value { font-size: 2em; font-weight: bold; }
+    .status { color: #666; }
+    .status.error { color: #c00; }
+    canvas { width: 100%; height: 200px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Mini-Apterros</h1>
 
-  <label>
-    Duty cycle (%):
-    <input
-      type="number"
-      name="duty_cycle"
-      min="0"
-      max="100"
-      value="50"
-      required
-    >
-  </label>
+  <section>
+    <h2>PWM</h2>
+    <form action="/cgi-bin/control.cgi" method="get">
+      <label>
+        Period (ms):
+        <input type="number" name="period" min="1" value="5" required>
+      </label>
 
-  <button type="submit">Send</button>
-</form>
+      <label>
+        Duty cycle (%):
+        <input
+          type="number"
+          name="duty_cycle"
+          min="0"
+          max="100"
+          value="50"
+          required
+        >
+      </label>
+
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Sensors</h2>
+    <p>
+      LIDAR distance: <span class="value" id="lidar-value">--</span> cm
+    </p>
+    <p class="status" id="sensor-status">Waiting for data...</p>
+    <canvas id="lidar-chart" width="600" height="200"></canvas>
+    <button type="button" id="sensor-toggle">Pause</button>
+  </section>
+
+  <script>
+    // Polls sensors.cgi and displays the readings in real time.
+    const SENSORS_URL = '/cgi-bin/sensors.cgi';
+    const POLL_INTERVAL_MS = 100;
+    const HISTORY_LENGTH = 100; // 10 s of history at 10 Hz.
+
+    const valueEl = document.getElementById('lidar-value');
+    const statusEl = document.getElementById('sensor-status');
+    const toggleEl = document.getElementById('sensor-toggle');
+    const canvas = document.getElementById('lidar-chart');
+
+    // Last distances in cm, null when a reading failed.
+    const history = [];
+    let paused = false;
+
+    function setStatus(text, isError) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('error', isError);
+    }
+
+    function addSample(value) {
+      history.push(value);
+      if (history.length > HISTORY_LENGTH)
+        history.shift();
+      drawChart();
+    }
+
+    function drawChart() {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const values = history.filter(v => v !== null);
+      if (values.length === 0)
+        return;
+
+      // Auto-scale, with a minimum range of 10 cm to avoid a noisy flat line.
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      if (max - min < 10) {
+        const mid = (min + max) / 2;
+        min = mid - 5;
+        max = mid + 5;
+      }
+
+      ctx.fillStyle = '#666';
+      ctx.font = '12px sans-serif';
+      ctx.fillText(Math.round(max) + ' cm', 4, 14);
+      ctx.fillText(Math.round(min) + ' cm', 4, h - 4);
+
+      // A failed reading (null) breaks the line.
+      ctx.strokeStyle = '#0a66c2';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let drawing = false;
+      history.forEach((v, i) => {
+        if (v === null) {
+          drawing = false;
+          return;
+        }
+        const x = i * w / (HISTORY_LENGTH - 1);
+        const y = h - 4 - (v - min) / (max - min) * (h - 8);
+        if (drawing)
+          ctx.lineTo(x, y);
+        else
+          ctx.moveTo(x, y);
+        drawing = true;
+      });
+      ctx.stroke();
+    }
+
+    async function poll() {
+      if (!paused) {
+        try {
+          const response = await fetch(SENSORS_URL, { cache: 'no-store' });
+          if (!response.ok)
+            throw new Error('HTTP ' + response.status);
+          const data = await response.json();
+
+          if (data.lidar.ok) {
+            valueEl.textContent = data.lidar.distance_cm;
+            setStatus('Updated at ' + new Date().toLocaleTimeString(), false);
+            addSample(data.lidar.distance_cm);
+          } else {
+            valueEl.textContent = '--';
+            setStatus('LIDAR read error', true);
+            addSample(null);
+          }
+        } catch (err) {
+          valueEl.textContent = '--';
+          setStatus('Server unreachable (' + err.message + ')', true);
+          addSample(null);
+        }
+      }
+      // Next request only once this one is done: requests never pile up.
+      setTimeout(poll, POLL_INTERVAL_MS);
+    }
+
+    toggleEl.addEventListener('click', () => {
+      paused = !paused;
+      toggleEl.textContent = paused ? 'Resume' : 'Pause';
+    });
+
+    poll();
+  </script>
+</body>
+</html>
