@@ -1,9 +1,9 @@
 FLAGS = -Wall -Wextra -pedantic -g
 PWMCHIP = /sys/class/pwm/pwmchip0
 
-.PHONY: all main main_pwm pinmux pwm control control_server pwm_permissions clean
+.PHONY: all main main_pwm pinmux pwm control control_server pwm_permissions lidar sensors sensors_server i2c_permissions clean
 
-all: main
+all: control_server sensors_server
 
 pinmux: src/pinmux.c
 	gcc $(FLAGS) src/pinmux.c -o pinmux
@@ -27,6 +27,23 @@ control_server: control pwm_permissions
 	sudo cp ../website/html/index.html /var/www/html/index.html
 	sudo chmod 644 /var/www/html/index.html
 
+lidar: src/lidar.c inc/lidar.h
+	gcc $(FLAGS) -c src/lidar.c -o lidar.o
+
+sensors: src/sensors.c lidar
+	gcc $(FLAGS) src/sensors.c lidar.o -o ../website/cgi-bin/sensors.cgi
+
+# Let Apache (www-data) access the I2C bus through the i2c group.
+# Apache is restarted so that the new group is taken into account.
+i2c_permissions:
+	id -nG www-data | grep -qw i2c || { sudo usermod -aG i2c www-data && sudo systemctl restart apache2; }
+
+sensors_server: sensors i2c_permissions
+	sudo cp ../website/cgi-bin/sensors.cgi /usr/lib/cgi-bin/sensors.cgi
+	sudo chmod 755 /usr/lib/cgi-bin/sensors.cgi
+	sudo cp ../website/html/index.html /var/www/html/index.html
+	sudo chmod 644 /var/www/html/index.html
+
 main: src/main.c
 	gcc $(FLAGS) src/main.c -o main
 
@@ -34,4 +51,4 @@ main_pwm: src/main_pwm.c pwm
 	gcc $(FLAGS) src/main_pwm.c pwm.o -o main_pwm
 
 clean: 
-	rm -f *.o main main_pwm ../website/cgi-bin/control.cgi
+	rm -f *.o main main_pwm ../website/cgi-bin/control.cgi ../website/cgi-bin/sensors.cgi
