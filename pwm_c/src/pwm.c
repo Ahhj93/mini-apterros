@@ -104,4 +104,5 @@ int stop_pwm(void) {
     if (write_value(PWM_ENABLE, 0) != 0)
         return -1;
     // return write_value(PWM_CHIP_UNEXPORT, 0);
+    return 0;  /* unexporting is not needed, and it fails if the signal is still enabled */
 }
