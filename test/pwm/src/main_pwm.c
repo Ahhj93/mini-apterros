@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include "../inc/pwm.h"
+#include "pwm.h"
 
 #define PERIOD_NS 20000000L  /* 20 ms = 50 Hz */
 #define DUTY_MIN  5          /* % (1 ms) */
