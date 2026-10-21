@@ -14,9 +14,10 @@ pwm: src/pwm.c inc/pwm.h
 control: src/control.c pwm
 	gcc $(FLAGS) src/control.c pwm.o -o ../website/cgi-bin/control.cgi
 
-# Export pwm0 as root and let Apache (www-data) write to it.
-# Lost after a reboot or an unexport: run it again in that case.
-pwm_permissions:
+# Configure the pinmux, export pwm0 as root and let Apache (www-data)
+# write to it. Lost after a reboot or an unexport: run it again in that case.
+pwm_permissions: pinmux
+	sudo ./pinmux
 	[ -d $(PWMCHIP)/pwm0 ] || sudo sh -c 'echo 0 > $(PWMCHIP)/export'
 	sudo chgrp www-data $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
 	sudo chmod g+w $(PWMCHIP)/pwm0/period $(PWMCHIP)/pwm0/duty_cycle $(PWMCHIP)/pwm0/enable
