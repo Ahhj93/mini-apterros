@@ -1,7 +1,7 @@
 FLAGS = -Wall -Wextra -pedantic -g
 PWMCHIP = /sys/class/pwm/pwmchip0
 
-.PHONY: all main main_pwm pinmux pwm control control_server pwm_permissions lidar sensors sensors_server i2c_permissions clean
+.PHONY: all pinmux pwm control control_server pwm_permissions lidar sensors sensors_server i2c_permissions clean
 
 all: control_server sensors_server
 
@@ -44,11 +44,5 @@ sensors_server: sensors i2c_permissions
 	sudo cp ../website/html/index.html /var/www/html/index.html
 	sudo chmod 644 /var/www/html/index.html
 
-main: src/main.c
-	gcc $(FLAGS) src/main.c -o main
-
-main_pwm: src/main_pwm.c pwm
-	gcc $(FLAGS) src/main_pwm.c pwm.o -o main_pwm
-
 clean: 
-	rm -f *.o main main_pwm ../website/cgi-bin/control.cgi ../website/cgi-bin/sensors.cgi
+	rm -f *.o ../website/cgi-bin/control.cgi ../website/cgi-bin/sensors.cgi
