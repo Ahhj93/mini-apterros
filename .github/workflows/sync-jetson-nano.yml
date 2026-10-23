@@ -2,8 +2,8 @@ name: Synchronize Jetson Nano branch
 
 on:
   push:
-    branches-ignore:
-      - jetson-nano
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   sync:
+    # A manual run started from another branch must not overwrite jetson-nano.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
