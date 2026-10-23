@@ -4,8 +4,6 @@
 
 Ce dépôt rassemble la conception et la documentation de la mini-fusée Apterros.
 L'objectif est de centraliser les ressources techniques pour faciliter le travail de l'équipe.
-N'hésitez pas à explorer les dossiers du projet pour suivre l'avancement et contribuer.
-
 ## Contributeurs
 | ![](https://images.weserv.nl/?url=github.com/Ahhj93.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/sblikeice.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/Margaux-Lapl.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/julien0305.png&mask=circle) | ![](https://images.weserv.nl/?url=github.com/JoaoCerq.png&mask=circle)
 | :---: | :---: | :---: | :---: | :---: |
