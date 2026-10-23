@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - jetson-nano
+  workflow_dispatch:
 
 permissions:
   contents: write

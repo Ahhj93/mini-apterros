@@ -1,0 +1,73 @@
+name: Build CGI scripts
+
+on:
+  push:
+    branches-ignore:
+      - jetson-nano
+    paths:
+      - src/jetson-nano/backend/**
+      - .github/workflows/build-cgi.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: build-cgi-${{ github.ref }}
+
+jobs:
+  build:
+    # The Jetson Nano is an aarch64 board.
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Compile control.cgi and sensors.cgi
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Build inside Ubuntu 18.04, the release of the Jetson Nano, so that
+          # the binaries link against its glibc (2.27). Binaries built directly
+          # on the runner would require a newer glibc and fail to start.
+          docker run --rm \
+            -v "$PWD:/repo" \
+            -w /repo/src/jetson-nano/backend \
+            ubuntu:18.04 \
+            sh -c 'apt-get update -qq &&
+                   apt-get install -y -qq --no-install-recommends gcc libc6-dev make > /dev/null &&
+                   make control sensors'
+
+          file src/jetson-nano/website/cgi-bin/control.cgi src/jetson-nano/website/cgi-bin/sensors.cgi
+
+      - name: Commit the binaries in cgi-bin
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git add src/jetson-nano/website/cgi-bin/control.cgi src/jetson-nano/website/cgi-bin/sensors.cgi
+
+          if git diff --cached --quiet; then
+            echo "control.cgi and sensors.cgi are already up to date."
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: update control.cgi and sensors.cgi"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      # A push made with GITHUB_TOKEN does not trigger the other workflows,
+      # so the jetson-nano branch is synchronized explicitly.
+      - name: Synchronize jetson-nano
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run sync-jetson-nano.yml --ref "${GITHUB_REF_NAME}"
